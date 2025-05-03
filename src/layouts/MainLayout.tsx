@@ -46,10 +46,10 @@ const MainLayout = ({ children }: IProps) => {
         <Content
           style={{
             margin: "24px 16px",
-            padding: "0 24px",
+            padding: "24px",
             background: colorBgContainer,
             borderRadius: borderRadiusLG,
-            textAlign: "left"
+            textAlign: "left",
           }}
         >
           {children}

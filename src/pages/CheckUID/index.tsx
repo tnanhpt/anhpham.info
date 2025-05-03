@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import MainLayout from "../../layouts/MainLayout";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import TextArea from "antd/es/input/TextArea";
-import { Button } from "antd";
+import { Button, Col, Flex, Progress, Row } from "antd";
 import _ from "lodash";
 import axios from "axios";
+import NumberFormatter from "../../components/NumberFormatter";
 
 type Inputs = {
   account: string;
@@ -21,6 +22,9 @@ const CheckUID = () => {
   const [live, setLive] = useState("");
   const [die, setDie] = useState("");
   const [error, setError] = useState("");
+  const [percent, setPercent] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [lastTotalAccount, setLastTotalAccount] = useState(0);
 
   const accountLength = useMemo(() => {
     if (!watchField.account?.trim()) {
@@ -51,9 +55,17 @@ const CheckUID = () => {
     return error.split(/\n/)?.filter((item) => item.trim() != "").length;
   }, [error]);
 
-  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+  const reset = () => {
     setLive("");
     setDie("");
+    setError("");
+    setPercent(0);
+  };
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    reset();
+    setLoading(true);
+    setLastTotalAccount(accountLength);
+
     try {
       let accountStr = data.account;
       let splitChar = /\t/gm;
@@ -63,8 +75,10 @@ const CheckUID = () => {
       let accountLines = accountStr
         .split(/\n/)
         ?.filter((item) => item.trim() != "");
-      const accountLinesChunk = _.chunk(accountLines, 100);
 
+      const totalAccount = accountLines.length;
+      const accountLinesChunk = _.chunk(accountLines, 100);
+      let totalChecked = 0;
       for (let i = 0; i < accountLinesChunk.length; i++) {
         let accountLinesItem = accountLinesChunk[i];
 
@@ -85,92 +99,164 @@ const CheckUID = () => {
                 setDie((old) => `${old}${line}\r\n`);
               }
             } catch (error: any) {
-              setError((old) => `${old}${line}|${error?.response?.data?.error?.message || error.message}\r\n`);
+              setError(
+                (old) =>
+                  `${old}${line}|${
+                    error?.response?.data?.error?.message || error.message
+                  }\r\n`
+              );
             }
           })
         );
+        totalChecked += accountLinesItem.length;
+        const currentPercent = Math.floor((totalChecked / totalAccount) * 100);
+        setPercent(currentPercent);
       }
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <MainLayout>
-      <h1 className="text-3xl text-medium">Check Live UID</h1>
+      <h1 className="text-3xl text-medium">
+        Kiểm tra live/ die tài khoản Facebook
+      </h1>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-5">
           <p className="text-lg font-normal mb-2">
-            <span> Danh sách tài khoản cần check (uid, uid|xxx|...)</span>
-            <span className="ml-2 text-white text-sm bg-gray-500 px-2 rounded-full">
-              {accountLength}
+            <span>
+              {" "}
+              Danh sách tài khoản cần kiểm tra (định dạng uid hoặc uid|xxx|...)
             </span>
+            {/* <span className="ml-2 text-white text-sm bg-gray-500 px-2 rounded-full">
+              <NumberFormatter number={accountLength} />
+            </span> */}
           </p>
-          <Controller
-            render={({ field }) => (
-              <TextArea
-                {...field}
-                defaultValue=""
-                className="mt-2"
-                rows={6}
-                placeholder="Nhập tài khoản cần check"
-              />
-            )}
-            name="account"
-            control={control}
-            defaultValue=""
-          />
+          <div className="relative">
+            <span className="absolute z-10 ml-2 top-3 right-3 text-white text-sm bg-gray-500 px-2 rounded-full">
+              <NumberFormatter number={accountLength} />
+            </span>
+            <Controller
+              render={({ field }) => (
+                <TextArea
+                  {...field}
+                  defaultValue=""
+                  className="mt-2"
+                  rows={8}
+                  placeholder="Mỗi dòng một UID"
+                />
+              )}
+              name="account"
+              control={control}
+              defaultValue=""
+            />
 
-          {errors?.account?.message && (
-            <p className="text-red-400 mt-1">{errors?.account?.message}</p>
-          )}
-          <Button htmlType="submit" type="primary" className="mt-2">
-            Check
+            {errors?.account?.message && (
+              <p className="text-red-400 mt-1">{errors?.account?.message}</p>
+            )}
+          </div>
+          <div className="h-5 mt-1">
+            {(loading || percent === 100) && (
+              <Flex align="center">
+                <p className="mr-2 w-16">Tiến độ: </p>
+                <Progress percent={percent} />
+              </Flex>
+            )}
+          </div>
+          <Button
+            htmlType="submit"
+            type="primary"
+            className="mt-2"
+            loading={loading}
+          >
+            Kiểm tra
           </Button>
         </div>
-        <div className="flex align-middle w-full space-x-4">
-          <div className="mt-5  w-full">
+        <Row className="w-full" gutter={8}>
+          <Col xs={24} md={12} className="mt-5">
             <p className="text-lg text-green-500 font-medium">
-              <span>Live</span>
-              <span className="ml-2 text-white text-sm bg-green-500 px-2 rounded-full">
-                {liveLength}
-              </span>
+              <span>Live:</span>
+              {/* <span className="ml-2 text-white text-sm bg-green-500 px-2 rounded-full">
+                <NumberFormatter number={liveLength} />
+                {lastTotalAccount > 0 && (
+                  <span>
+                    /<NumberFormatter number={lastTotalAccount} />
+                  </span>
+                )}
+              </span> */}
             </p>
-            <TextArea
-              value={live}
-              onChange={(e) => setLive(e.target.value)}
-              className="mt-2"
-              rows={6}
-            />
-          </div>
+            <div className="relative">
+              <span className="absolute z-10 ml-2 top-3 right-3 text-white text-sm bg-green-500 px-2 rounded-full">
+                <NumberFormatter number={liveLength} />
+                {lastTotalAccount > 0 && (
+                  <span>
+                    /<NumberFormatter number={lastTotalAccount} />
+                  </span>
+                )}
+              </span>
+              <TextArea
+                value={live}
+                onChange={(e) => setLive(e.target.value)}
+                className="mt-2"
+                rows={8}
+              />
+            </div>
+          </Col>
+          <Col xs={24} md={12} className="mt-5">
+            <p className="text-lg text-red-500 font-medium m-0">
+              <span>Die:</span>
+            </p>
+            <div className="relative">
+              <span className="absolute z-10 ml-2 top-3 right-3 text-white text-sm bg-red-500 px-2 rounded-full">
+                <NumberFormatter number={dieLength} />
+                {lastTotalAccount > 0 && (
+                  <span>
+                    /<NumberFormatter number={lastTotalAccount} />
+                  </span>
+                )}
+              </span>
+              <TextArea
+                value={die}
+                onChange={(e) => setDie(e.target.value)}
+                className="mt-2"
+                rows={8}
+              />
+            </div>
+          </Col>
+        </Row>
+        {errorLength > 0 && (
           <div className="mt-5 w-full">
             <p className="text-lg text-red-500 font-medium m-0">
-              <span>Die</span>
-              <span className="ml-2  text-white text-sm bg-red-500 px-2 rounded-full">
-                {dieLength}
+              <span>Kiểm tra lỗi:</span>
+              {/* <span className="ml-2  text-white text-sm bg-red-500 px-2 rounded-full">
+            <NumberFormatter number={errorLength} />
+            {lastTotalAccount > 0 && (
+              <span>
+                /<NumberFormatter number={lastTotalAccount} />
               </span>
-            </p>
-            <TextArea
-              value={die}
-              onChange={(e) => setDie(e.target.value)}
-              className="mt-2"
-              rows={6}
-            />
+            )}
+          </span> */}
+            </p>{" "}
+            <div className="relative">
+              <span className="absolute z-10 ml-2 top-3 right-3 text-white text-sm bg-red-500 px-2 rounded-full">
+                <NumberFormatter number={errorLength} />
+                {lastTotalAccount > 0 && (
+                  <span>
+                    /<NumberFormatter number={lastTotalAccount} />
+                  </span>
+                )}
+              </span>
+              <TextArea
+                value={error}
+                onChange={(e) => setError(e.target.value)}
+                className="mt-2"
+                rows={6}
+              />
+            </div>
           </div>
-        </div>
-
-        <div className="mt-5 w-full">
-          <p className="text-lg text-red-500 font-medium m-0">
-            <span>Lỗi</span>
-            <span className="ml-2  text-white text-sm bg-red-500 px-2 rounded-full">
-              {errorLength}
-            </span>
-          </p>
-          <TextArea
-            value={error}
-            onChange={(e) => setError(e.target.value)}
-            className="mt-2"
-            rows={6}
-          />
-        </div>
+        )}
       </form>
     </MainLayout>
   );

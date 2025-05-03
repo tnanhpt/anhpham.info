@@ -1,35 +1,38 @@
 import Axios from "axios";
 
-const axiosFb = Axios.create({
-  timeout: 600000,
-  // withCredentials: true,
+// axios
+const axios = Axios.create({
+  // baseURL: "http://localhost:9005/api/v1",
+  baseURL: "/api/v1",
 });
+// request
 
-// const handleRecord = async (payload) => {
-//   await saveLog(payload)
-// }
 
-axiosFb.interceptors.response.use(
+// axios.interceptors.request.use(
+//   (config) => {
+//     config.headers.common["Authorization"] = `Bearer ${localStorage.getItem(
+//       "token"
+//     )}`;
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+// response
+
+axios.interceptors.response.use(
   (response) => {
-    return response;
+    
+    return response?.data || response;
   },
-  async function (error) {
-    const res = error.response;
-    if (res?.data?.error?.message) {
-      error.message = res.data.error.message;
+  (error) => {
+    if (error.response.status === 401) {
+      localStorage.clear();
+      window.location.reload();
     }
-
-    await Promise.all([
-      Promise.reject(error),
-      // handleRecord({
-      //   errorCode: res?.status || 0,
-      //   debug: JSON.stringify({
-      //     response: res,
-      //   }),
-      //   message: 'extension_fb',
-      // }),
-    ]);
+    return Promise.reject(error?.response?.data || error?.message);
   }
 );
 
-export default axiosFb;
+export default axios;

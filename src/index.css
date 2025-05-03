@@ -2,6 +2,9 @@
 @tailwind utilities;
 @tailwind components;
 
+* {
+  box-sizing: border-box;
+}
 /* scrollbar */
 
 ::-webkit-scrollbar {
