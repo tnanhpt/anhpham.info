@@ -10,6 +10,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { sleep } from "../../helpers/func";
 import { Button } from "antd";
 import { PlusCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
+import AppLayout from "../../layouts/AppLayout";
 
 const Note = () => {
   const [value, setValue] = useState("");
@@ -164,99 +165,107 @@ const Note = () => {
   }, [url, navigate]);
 
   return (
-    <div
-      className={`flex flex-col h-screen text-left transition-colors duration-300 dark:bg-gradient-to-br dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 dark:text-gray-200 bg-gradient-to-br from-blue-100 via-blue-50 to-teal-100 text-gray-800`}
-    >
+    <AppLayout>
       <div
-        className={`flex flex-col h-screen p-4 text-left container mx-auto transition-colors"`}
+        className={`flex flex-col h-screen text-left transition-colors duration-300 dark:bg-gradient-to-br dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 dark:text-gray-200 bg-gradient-to-br from-blue-100 via-blue-50 to-teal-100 text-gray-800`}
       >
-        <div className="absolute top-0 right-0 p-4 z-10">
-          <DarkModeSw isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-        </div>
+        <div
+          className={`flex flex-col h-screen p-4 text-left container mx-auto transition-colors"`}
+        >
+          <div className="absolute top-0 right-0 p-4 z-10">
+            <DarkModeSw
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+            />
+          </div>
 
-        <div className="flex-0 mb-4">
-          <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-2">
-            NOTEPAD ONLINE
-          </h1>
-          <p className=" font-medium text-gray-600 dark:text-gray-300">
-            <span>Save your notes - Safe your notes</span>
-          </p>
-        </div>
-        {loading && (
-          <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-slate-700 opacity-50 flex items-center justify-center rounded-lg z-20" />
-        )}
-        {/* CodeMirror auto-expand and scroll */}
-        {isSaving && <div className="text-right">Saving...</div>}
-        <div className="flex items-center mb-4">
-          <Button
-            type="primary"
-            className="ml-2"
-            onClick={onNewNote}
-            icon={<PlusCircleOutlined />}
-          >
-            New note
-          </Button>
-          {/* <button
+          <div className="flex-0 mb-4">
+            <h1 className="text-2xl font-bold text-blue-700 dark:text-blue-400 mb-2">
+              NOTEPAD ONLINE
+            </h1>
+            <p className=" font-medium text-gray-600 dark:text-gray-300">
+              <span>Save your notes - Safe your notes</span>
+            </p>
+          </div>
+          {loading && (
+            <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-slate-700 opacity-50 flex items-center justify-center rounded-lg z-20" />
+          )}
+          {/* CodeMirror auto-expand and scroll */}
+          {<div className="text-right" style={{
+            visibility: isSaving ? 'visible' : 'hidden',
+            transition: "opacity 0.3s ease-in-out",
+          }}>Saving...</div>}
+          <div className="flex items-center mb-4">
+            <Button
+              type="primary"
+              className="ml-2"
+              onClick={onNewNote}
+              icon={<PlusCircleOutlined />}
+            >
+              New note
+            </Button>
+            {/* <button
             onClick={() => onCopyUrl()}
             rel="noopener noreferrer"
             className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-300"
           >
             <Button type="primary" shape="circle" icon={<SearchOutlined />} />
           </button> */}
-          <Button
-            color="cyan"
-            variant="solid"
-            className="ml-2"
-            onClick={onCopyUrl}
-            icon={<ShareAltOutlined />}
-          >
-            Share URL
-          </Button>
-          <Button
-            color="danger"
-            variant="solid"
-            className="ml-2"
-            onClick={onDeleteNote}
-            icon={<ShareAltOutlined />}
-          >
-            Delete Note
-          </Button>
-        </div>
-        <div className="flex-1 overflow-auto  text-base bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-fix">
-          {!isDisabled && (
-            <CodeMirror
-              placeholder="Write your notes here..."
-              value={value}
-              height="100%"
-              onChange={onChange}
-              theme={isDarkMode ? dracula : githubLight}
-            />
-          )}
-        </div>
-        <div className="footer mt-4 text-center py-4 bg-gradient-to-r from-teal-200 to-blue-200 dark:from-slate-700 dark:to-slate-800 text-gray-700 dark:text-gray-300 rounded-lg shadow-md">
-          <p className="text-sm">
-            © 2025{" "}
-            <a
-              href="https://anhpham.info"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline dark:text-blue-400"
+            <Button
+              color="cyan"
+              variant="solid"
+              className="ml-2"
+              onClick={onCopyUrl}
+              icon={<ShareAltOutlined />}
             >
-              AnhPham.Info
-            </a>{" "}
-            - Built with ❤️ by{" "}
-            <a
-              href="https://facebook.com/tnanhpt"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-500 hover:underline dark:text-blue-400"
+              Share URL
+            </Button>
+            <Button
+              color="danger"
+              variant="solid"
+              className="ml-2"
+              onClick={onDeleteNote}
+              icon={<ShareAltOutlined />}
             >
-              TNANHPT
-            </a>
-          </p>
+              Delete Note
+            </Button>
+          </div>
+          <div className="flex-1 overflow-auto  text-base bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-fix">
+            {!isDisabled && (
+              <CodeMirror
+                placeholder="Write your notes here..."
+                value={value}
+                height="100%"
+                onChange={onChange}
+                theme={isDarkMode ? dracula : githubLight}
+              />
+            )}
+          </div>
+          <div className="footer mt-4 text-center py-4 bg-gradient-to-r from-teal-200 to-blue-200 dark:from-slate-700 dark:to-slate-800 text-gray-700 dark:text-gray-300 rounded-lg shadow-md">
+            <p className="text-sm">
+              © 2025{" "}
+              <a
+                href="https://anhpham.info"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline dark:text-blue-400"
+              >
+                AnhPham.Info
+              </a>{" "}
+              - Built with ❤️ by{" "}
+              <a
+                href="https://facebook.com/tnanhpt"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500 hover:underline dark:text-blue-400"
+              >
+                TNANHPT
+              </a>
+            </p>
+          </div>
         </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

@@ -1,20 +1,19 @@
-import  { ReactNode} from "react";
+import { ReactNode } from "react";
 
 import { Layout, theme } from "antd";
 
-const {  Content} = Layout;
-
+const { Content } = Layout;
 
 interface IProps {
   children: ReactNode;
 }
 const MainLayout = ({ children }: IProps) => {
   const {
-    token: { colorBgContainer, borderRadiusLG },
+    token: { borderRadiusLG },
   } = theme.useToken();
 
   return (
-    <Layout style={{height: "100vh"}}>
+    <Layout style={{ height: "100vh" }}>
       {/* <Sider trigger={null} collapsible collapsed={collapsed}>
         <div className="demo-logo-vertical" />
         <Menu
@@ -45,11 +44,12 @@ const MainLayout = ({ children }: IProps) => {
         </Header> */}
         <Content
           style={{
-            margin: "24px 16px",
-            padding: "24px",
-            background: colorBgContainer,
+            // margin: "24px 16px",
+            padding: "24px 16px",
+            background: "linear-gradient(to bottom right, #e0f7fa, #ffffff)", // Gradient pastel sáng
             borderRadius: borderRadiusLG,
             textAlign: "left",
+            overflow: "auto",
           }}
         >
           {children}
