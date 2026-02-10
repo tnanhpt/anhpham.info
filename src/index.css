@@ -49,7 +49,7 @@
   text-overflow: unset;
 }
 .text-ellipsis:hover::after {
-  content: '...';
+  content: "...";
 }
 .text-ellipsis:hover::before {
   content: attr(title);
@@ -72,10 +72,14 @@
   z-index: 1;
 }
 .text-parent {
-  color: rgba(0, 0, 0, 0.77)
+  color: rgba(0, 0, 0, 0.77);
 }
- .avatar-skeleton {
+.avatar-skeleton {
   width: 100%;
   height: 100%;
   line-height: 1;
+}
+
+.input_title::placeholder {
+  color: #b8b4b4 !important;
 }

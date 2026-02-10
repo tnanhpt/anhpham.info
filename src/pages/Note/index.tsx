@@ -8,17 +8,22 @@ import NoteAPI from "../../apis/notes.api";
 import { showError, showSuccess } from "../../helpers/show-error";
 import { useNavigate, useParams } from "react-router-dom";
 import { sleep } from "../../helpers/func";
-import { Button } from "antd";
+import { Button, Input } from "antd";
 import { PlusCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
 
+
 const Note = () => {
-  const [value, setValue] = useState("");
-  const [valueDebounce] = useDebounce(value, 300);
+  const [note, setNote] = useState("");
+  const [title, setTitle] = useState("");
+
+  const [valueDebounce] = useDebounce(note, 300);
+  const [titleDebounce] = useDebounce(title, 300);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isInitital, setIsInitital] = useState(true);
   const [lastSavedValue, setLastSavedValue] = useState("");
+  const [lastSaveTitle, setLastSavedTitle] = useState("");
   const [isDisabled, setIsDisabled] = useState(false);
 
   const url = useParams()?.id;
@@ -44,9 +49,11 @@ const Note = () => {
     setLoading(true);
     try {
       const response = await NoteAPI.getNote(url);
-      if (response?.data?.content) {
-        setValue(response?.data?.content);
+      if (response?.data?.content || response?.data?.title) {
+        setNote(response?.data?.content);
+        setTitle(response?.data?.title);
         setLastSavedValue(response?.data?.content);
+        setLastSavedTitle(response?.data?.title);
       }
       setIsDisabled(false);
     } catch (error: any) {
@@ -78,11 +85,12 @@ const Note = () => {
 
   // Cập nhật ghi chú
   const onUpdateNote = useCallback(
-    async (value: string) => {
+    async (value: string, title: string) => {
       setIsSaving(true);
       try {
-        await NoteAPI.updateNote({ content: value, title: "Note", url });
+        await NoteAPI.updateNote({ content: value, title, url });
         setLastSavedValue(value);
+        setLastSavedTitle(value);
       } catch (error: any) {
         showError({ message: error?.message ?? "Failed to update note!" });
       } finally {
@@ -94,6 +102,8 @@ const Note = () => {
 
   const createNote = useCallback(async () => {
     const url = await onCreateNote();
+    setTitle("");
+    setNote("");
     if (url) {
       navigate(`/${url}`);
     }
@@ -101,12 +111,17 @@ const Note = () => {
 
   const onNewNote = async () => {
     const url = await onCreateNote();
-    window.open(`${window.location.origin}/${url}`, "_blank");
+    navigate(`/${url}`, { replace: true });
+    window.location.reload();
   };
 
   // Xử lý khi giá trị thay đổi
-  const onChange = useCallback((val: string) => {
-    setValue(val);
+  const onChangeNote = useCallback((val: string) => {
+    setNote(val);
+  }, []);
+  // Xử lý khi giá trị thay đổi
+  const onChangeTitle = useCallback((val: string) => {
+    setTitle(val);
   }, []);
 
   // Xử lý khi tải trang
@@ -120,10 +135,13 @@ const Note = () => {
 
   // Xử lý cập nhật ghi chú khi giá trị thay đổi
   useEffect(() => {
-    if (!isInitital && valueDebounce !== lastSavedValue) {
-      onUpdateNote(valueDebounce);
+    if (
+      (!isInitital && valueDebounce !== lastSavedValue) ||
+      titleDebounce != lastSaveTitle
+    ) {
+      onUpdateNote(valueDebounce, titleDebounce);
     }
-  }, [valueDebounce, isInitital, lastSavedValue, onUpdateNote]);
+  }, [valueDebounce, isInitital, lastSavedValue, onUpdateNote, titleDebounce]);
 
   // Xử lý chế độ sáng/tối khi tải trang
   useEffect(() => {
@@ -154,7 +172,7 @@ const Note = () => {
       showSuccess({ message: "Note deleted!" });
       navigate("/");
       window.location.reload();
-      // setValue("");
+      // setNote("");
       // setLastSavedValue("");
     } catch (error: any) {
       showError({ message: error?.message ?? "Failed to delete note!" });
@@ -162,6 +180,7 @@ const Note = () => {
       setLoading(false);
     }
   }, [url, navigate]);
+  console.log(title);
 
   return (
     <div
@@ -186,49 +205,76 @@ const Note = () => {
           <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-slate-700 opacity-50 flex items-center justify-center rounded-lg z-20" />
         )}
         {/* CodeMirror auto-expand and scroll */}
-        {isSaving && <div className="text-right">Saving...</div>}
-        <div className="flex items-center mb-4">
-          <Button
-            type="primary"
-            className="ml-2"
-            onClick={onNewNote}
-            icon={<PlusCircleOutlined />}
-          >
-            New note
-          </Button>
-          {/* <button
+
+        <div className="flex justify-between items-center">
+          <div className="flex items-center mb-4">
+            <Button
+              type="primary"
+              className="ml-2"
+              onClick={onNewNote}
+              icon={<PlusCircleOutlined />}
+            >
+              New note
+            </Button>
+            {/* <button
             onClick={() => onCopyUrl()}
             rel="noopener noreferrer"
             className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-300"
           >
             <Button type="primary" shape="circle" icon={<SearchOutlined />} />
           </button> */}
-          <Button
-            color="cyan"
-            variant="solid"
-            className="ml-2"
-            onClick={onCopyUrl}
-            icon={<ShareAltOutlined />}
+            <Button
+              color="cyan"
+              variant="solid"
+              className="ml-2"
+              onClick={onCopyUrl}
+              icon={<ShareAltOutlined />}
+            >
+              Share URL
+            </Button>
+            <Button
+              color="danger"
+              variant="solid"
+              className="ml-2"
+              onClick={onDeleteNote}
+              icon={<ShareAltOutlined />}
+            >
+              Delete Note
+            </Button>
+          </div>
+          <div
+            className="text-right"
+            style={{
+              visibility: isSaving ? "visible" : "hidden",
+              transition: "opacity 0.3s ease-in-out",
+            }}
           >
-            Share URL
-          </Button>
-          <Button
-            color="danger"
-            variant="solid"
-            className="ml-2"
-            onClick={onDeleteNote}
-            icon={<ShareAltOutlined />}
-          >
-            Delete Note
-          </Button>
+            Saving...
+          </div>
+        </div>
+        <div className="title mb-5">
+          <Input
+            size="large"
+            className="dark:bg-slate-800 dark:!text-white input_title"
+            value={title}
+            style={{
+              height: 50,
+              fontSize: 20,
+              fontFamily: "Consolas",
+              color: "#EEEEEE !important",
+            }}
+            placeholder="Title"
+            onChange={(v) => onChangeTitle(v.target.value)}
+          />
         </div>
         <div className="flex-1 overflow-auto  text-base bg-white dark:bg-slate-800 rounded-lg shadow-lg overflow-fix">
           {!isDisabled && (
             <CodeMirror
               placeholder="Write your notes here..."
-              value={value}
+              value={note}
               height="100%"
-              onChange={onChange}
+              style={{ fontSize: 20 }}
+              onChange={(v) => onChangeNote(v)}
               theme={isDarkMode ? dracula : githubLight}
             />
           )}
