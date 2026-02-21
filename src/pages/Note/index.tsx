@@ -90,7 +90,7 @@ const Note = () => {
         setIsSaving(false);
       }
     },
-    [url]
+    [url],
   );
 
   const createNote = useCallback(async () => {
@@ -165,7 +165,7 @@ const Note = () => {
   }, [url, navigate]);
 
   return (
-    <AppLayout>
+    <AppLayout title="">
       <div
         className={`flex flex-col h-screen text-left transition-colors duration-300 dark:bg-gradient-to-br dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 dark:text-gray-200 bg-gradient-to-br from-blue-100 via-blue-50 to-teal-100 text-gray-800`}
       >
@@ -191,10 +191,17 @@ const Note = () => {
             <div className="absolute top-0 left-0 w-full h-full bg-gray-200 dark:bg-slate-700 opacity-50 flex items-center justify-center rounded-lg z-20" />
           )}
           {/* CodeMirror auto-expand and scroll */}
-          {<div className="text-right" style={{
-            visibility: isSaving ? 'visible' : 'hidden',
-            transition: "opacity 0.3s ease-in-out",
-          }}>Saving...</div>}
+          {
+            <div
+              className="text-right"
+              style={{
+                visibility: isSaving ? "visible" : "hidden",
+                transition: "opacity 0.3s ease-in-out",
+              }}
+            >
+              Saving...
+            </div>
+          }
           <div className="flex items-center mb-4">
             <Button
               type="primary"

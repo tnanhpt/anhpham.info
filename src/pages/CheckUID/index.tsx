@@ -122,7 +122,7 @@ const CheckUID = () => {
   };
 
   return (
-    <AppLayout>
+    <AppLayout title="Kiểm tra live/ die tài khoản Facebook">
       <MainLayout>
         <h1 className="text-2xl text-blue-600 dark:text-blue-400">
           Kiểm tra live/ die tài khoản Facebook

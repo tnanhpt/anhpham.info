@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { EditOutlined, FacebookOutlined } from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import { Menu } from "antd";
 import { useLocation, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 type MenuItem = Required<MenuProps>["items"][number];
 
 const items: MenuItem[] = [
   {
-    label: "Check Live UID Facebook",
-    key: "check-live-uid",
-    icon: <FacebookOutlined style={{ fontSize: "22px" }} />,
+    label: "Check live Facebook",
+    key: "check-live",
+  },
+  {
+    label: "Cắt chuỗi",
+    key: "split-str",
   },
   {
     key: "",
-    icon: <EditOutlined style={{ fontSize: "22px" }} />,
     label: (
       <a
         href="https://note.anhpham.info"
@@ -27,7 +29,10 @@ const items: MenuItem[] = [
   },
 ];
 
-const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const AppLayout: React.FC<{ children: React.ReactNode; title: string }> = ({
+  children,
+  title = "Tiện ích",
+}) => {
   const [current, setCurrent] = useState("check-live-uid");
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,22 +56,27 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <>
+    <div className="container mx-auto">
+      <Helmet>
+        <meta charSet="utf-8" />
+        <title>{title}</title>
+        <link rel="canonical" href="" />
+      </Helmet>
       <Menu
         onClick={onClick}
         selectedKeys={[current]}
         mode="horizontal"
         items={items}
         style={{
-          background: "linear-gradient(to right, #e0f7fa, #ffffff)", // Gradient pastel sáng
-          borderBottom: "1px solid #d1e9e9", // Đường viền nhẹ
-          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)", // Hiệu ứng đổ bóng
-         
+          background: "linear-gradient(to right, #f2fbfc, #e0f7fa)",
+          borderBottom: "1px solid #d1e9e9",
+          boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+          fontSize: 18,
         }}
         theme="light"
       />
       <div>{children}</div>
-    </>
+    </div>
   );
 };
 export default AppLayout;
