@@ -170,12 +170,12 @@ const SplitStr = () => {
 
               <Row className="w-full mt-4" gutter={12} align={"middle"}>
                 <Col xs={24} md={6}>
-                  <Typography.Title level={5}>Bắt đầu cắt</Typography.Title>
+                  <Typography.Title level={5}>Lấy từ cụm thứ:</Typography.Title>
                   <Controller
                     render={({ field }) => (
                       <Input
                         {...field}
-                        placeholder="Bắt đầu cắt"
+                        placeholder="Nhập số"
                         type="number"
                       />
                     )}
@@ -191,10 +191,10 @@ const SplitStr = () => {
                   )}
                 </Col>
                 <Col xs={24} md={6}>
-                  <Typography.Title level={5}>Đến cụm</Typography.Title>
+                  <Typography.Title level={5}>Đến cụm thứ</Typography.Title>
                   <Controller
                     render={({ field }) => (
-                      <Input {...field} placeholder="Đến cụm" type="number" />
+                      <Input {...field} placeholder="Nhập số" type="number" />
                     )}
                     name="to"
                     control={control}

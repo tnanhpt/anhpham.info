@@ -2,9 +2,13 @@ export const sleep = (ms: number) =>
   new Promise((resolve) => setTimeout(resolve, ms));
 
 export const detectSeparator = (input: string) => {
-  const commonSeparators = ["\t", "|", ",", ";", " "];
+  const commonSeparators = ["\t", ",", ";", " "];
 
-  let bestSeparator = "|";
+  if (input.includes("|")) {
+    return "|";
+  }
+
+  let bestSeparator = ",";
   let maxCount = 0;
 
   for (const sep of commonSeparators) {
@@ -17,3 +21,5 @@ export const detectSeparator = (input: string) => {
 
   return bestSeparator;
 };
+
+

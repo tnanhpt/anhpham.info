@@ -16,6 +16,10 @@ const items: MenuItem[] = [
     key: "split-str",
   },
   {
+    label: "Gộp link BM",
+    key: "merge-str",
+  },
+  {
     key: "",
     label: (
       <a
