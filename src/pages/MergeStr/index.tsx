@@ -86,7 +86,7 @@ const MergeStr = () => {
         meta[uid] = { acc };
       }
 
-      if (time && !meta[uid]) {
+      if (time) {
         meta[uid] = { ...meta[uid], time };
       }
     });

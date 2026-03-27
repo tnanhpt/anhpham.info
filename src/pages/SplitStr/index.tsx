@@ -89,7 +89,8 @@ const SplitStr = () => {
       }
 
       localStorage.setItem("SPLIT_ANHPHAMINFO", JSON.stringify(data));
-      const lines = input.split("\n");
+      let lines = input.split("\n");
+      lines = lines.filter((line) => line.trim() !== "");
 
       const splited = lines.map((line) => line?.trim()?.split(data.split_char));
 
@@ -152,7 +153,10 @@ const SplitStr = () => {
                 <Typography.Title level={5}>Ngăn cách bởi</Typography.Title>
                 <Controller
                   render={({ field }) => (
-                    <Input {...field} placeholder="Nhập kí tự ngăn cách hoặc tự động nhận diện" />
+                    <Input
+                      {...field}
+                      placeholder="Nhập kí tự ngăn cách hoặc tự động nhận diện"
+                    />
                   )}
                   name="split_char"
                   control={control}
@@ -173,11 +177,7 @@ const SplitStr = () => {
                   <Typography.Title level={5}>Lấy từ cụm thứ:</Typography.Title>
                   <Controller
                     render={({ field }) => (
-                      <Input
-                        {...field}
-                        placeholder="Nhập số"
-                        type="number"
-                      />
+                      <Input {...field} placeholder="Nhập số" type="number" />
                     )}
                     name="from"
                     control={control}
