@@ -90,7 +90,7 @@ const CheckUID = () => {
             try {
               const uid = account[0]?.trim();
               const response = await axios.get(
-                `https://graph.facebook.com/${uid}/picture?type=normal`
+                `https://graph.facebook.com/${uid}/picture?type=normal`,
               );
               const redirectUrl = response.request.responseURL;
               if (redirectUrl.includes("100x100")) {
@@ -103,10 +103,10 @@ const CheckUID = () => {
                 (old) =>
                   `${old}${line}|${
                     error?.response?.data?.error?.message || error.message
-                  }\r\n`
+                  }\r\n`,
               );
             }
-          })
+          }),
         );
         totalChecked += accountLinesItem.length;
         const currentPercent = Math.floor((totalChecked / totalAccount) * 100);

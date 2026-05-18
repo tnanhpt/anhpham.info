@@ -9,8 +9,7 @@ import { showError, showSuccess } from "../../helpers/show-error";
 import { useNavigate, useParams } from "react-router-dom";
 import { sleep } from "../../helpers/func";
 import { Button, Input } from "antd";
-import { PlusCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
-
+import { DownloadOutlined, PlusCircleOutlined, ShareAltOutlined } from "@ant-design/icons";
 
 const Note = () => {
   const [note, setNote] = useState("");
@@ -70,6 +69,8 @@ const Note = () => {
   // Tạo ghi chú mới
   const onCreateNote = useCallback(async () => {
     setLoading(true);
+    setNote("");
+    setTitle("");
     try {
       const response = await NoteAPI.createNote();
       if (!response?.data?.url) {
@@ -97,7 +98,7 @@ const Note = () => {
         setIsSaving(false);
       }
     },
-    [url]
+    [url],
   );
 
   const createNote = useCallback(async () => {
@@ -182,6 +183,29 @@ const Note = () => {
   }, [url, navigate]);
   console.log(title);
 
+  const handleDownload = useCallback(() => {
+    // Tạo blob từ text
+    const text = note;
+    let name = title?.trim() ? title : "file";
+    name = name + ".txt";
+    const blob = new Blob([text], { type: "text/plain" });
+
+    // Tạo URL tạm
+    const url = window.URL.createObjectURL(blob);
+
+    // Tạo thẻ a để download
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name; // tên file
+
+    document.body.appendChild(a);
+    a.click();
+
+    // Cleanup
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+  }, [note, title]);
+
   return (
     <div
       className={`flex flex-col h-screen text-left transition-colors duration-300 dark:bg-gradient-to-br dark:from-slate-800 dark:via-slate-700 dark:to-slate-900 dark:text-gray-200 bg-gradient-to-br from-blue-100 via-blue-50 to-teal-100 text-gray-800`}
@@ -227,10 +251,10 @@ const Note = () => {
               color="cyan"
               variant="solid"
               className="ml-2"
-              onClick={onCopyUrl}
-              icon={<ShareAltOutlined />}
+              onClick={handleDownload}
+              icon={<DownloadOutlined />}
             >
-              Share URL
+              Download
             </Button>
             <Button
               color="danger"

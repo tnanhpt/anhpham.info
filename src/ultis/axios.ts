@@ -3,7 +3,8 @@ import Axios from "axios";
 // axios
 const axios = Axios.create({
   // baseURL: "http://localhost:9005/api/v1",
-  baseURL: "/api/v1",
+  // baseURL: "/api/v1",
+  baseURL: "https://note.anhpham.info/api/v1",
 });
 // request
 
